@@ -67,7 +67,8 @@ struct blink_item {
 
 // define message queue of blink work items, that will be processed by a separate thread
 // Max 6 sequences; more in queue will be dropped.
-K_MSGQ_DEFINE(led_msgq, sizeof(struct blink_item), 6, 1);
+// Renamed from led_msgq to pmli_led_msgq to avoid collision with zmk-rgbled-widget
+K_MSGQ_DEFINE(pmli_led_msgq, sizeof(struct blink_item), 6, 1);
 
 static void led_do_blink(struct blink_item blink) {
     led_off(led_dev, led_idx);
@@ -105,7 +106,7 @@ static void indicate_ble(void) {
         SET_BLINK_SEQUENCE(CONFIG_INDICATOR_LED_PROFILE_UNCONNECTED_PATTERN);
         blink.n_repeats = profile_index;
     }
-    k_msgq_put(&led_msgq, &blink, K_NO_WAIT);
+    k_msgq_put(&pmli_led_msgq, &blink, K_NO_WAIT);
 #endif
 #if IS_ENABLED(CONFIG_INDICATOR_LED_SHOW_PERIPHERAL_BLE) && \
     IS_ENABLED(CONFIG_ZMK_SPLIT) && \
@@ -119,7 +120,7 @@ static void indicate_ble(void) {
         SET_BLINK_SEQUENCE(CONFIG_INDICATOR_LED_PROFILE_UNCONNECTED_PATTERN);
         blink.n_repeats = 10;
     }
-    k_msgq_put(&led_msgq, &blink, K_NO_WAIT);
+    k_msgq_put(&pmli_led_msgq, &blink, K_NO_WAIT);
 #endif
 
 }
@@ -162,7 +163,7 @@ static int led_battery_listener_cb(const zmk_event_t *eh) {
         static const struct blink_item blink = BLINK_STRUCT(
             CONFIG_INDICATOR_LED_BATTERY_CRITICAL_PATTERN, 1
         );
-        k_msgq_put(&led_msgq, &blink, K_NO_WAIT);
+        k_msgq_put(&pmli_led_msgq, &blink, K_NO_WAIT);
     }
     return 0;
 }
@@ -204,7 +205,7 @@ static void indicate_startup_battery(void) {
         blink.n_repeats = 0;
     }
 
-    k_msgq_put(&led_msgq, &blink, K_NO_WAIT);
+    k_msgq_put(&pmli_led_msgq, &blink, K_NO_WAIT);
 }
 #endif
 
@@ -228,13 +229,13 @@ static int led_layer_listener_cb(const zmk_event_t *eh) {
     struct blink_item blink = BLINK_STRUCT(
         CONFIG_INDICATOR_LED_LAYER_PATTERN, index
     );
-    k_msgq_put(&led_msgq, &blink, K_NO_WAIT);
+    k_msgq_put(&pmli_led_msgq, &blink, K_NO_WAIT);
     if (zmk_keymap_highest_layer_active() >=
         CONFIG_INDICATOR_LED_LAYER_PERSISTENCE_THRESHOLD) {
         blink = BLINK_STRUCT(
             STAY_ON, 1
         );
-        k_msgq_put(&led_msgq, &blink, K_NO_WAIT);
+        k_msgq_put(&pmli_led_msgq, &blink, K_NO_WAIT);
 
     }
     return 0;
@@ -253,7 +254,7 @@ extern void led_process_thread(void *d0, void *d1, void *d2) {
     while (true) {
         // wait until a blink item is received and process it
         struct blink_item blink;
-        k_msgq_get(&led_msgq, &blink, K_FOREVER);
+        k_msgq_get(&pmli_led_msgq, &blink, K_FOREVER);
         LOG_DBG("Got a blink item from msgq");
 
         led_do_blink(blink);
