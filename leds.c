@@ -125,7 +125,7 @@ static void indicate_ble(void) {
 
 }
 
-static int led_output_listener_cb(const zmk_event_t *eh) {
+static int pmli_led_output_listener_cb(const zmk_event_t *eh) {
 #if IS_ENABLED(CONFIG_ZMK_BLE) && IS_ENABLED(CONFIG_INDICATOR_LED_SHOW_BLE)
     if (initialized) {
         indicate_ble();
@@ -134,13 +134,13 @@ static int led_output_listener_cb(const zmk_event_t *eh) {
     return 0;
 }
 
-ZMK_LISTENER(led_output_listener, led_output_listener_cb);
+ZMK_LISTENER(pmli_led_output_listener, pmli_led_output_listener_cb);
 #if IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL) || !IS_ENABLED(CONFIG_ZMK_SPLIT)
-// run led_output_listener_cb on BLE profile change (on central)
-ZMK_SUBSCRIPTION(led_output_listener, zmk_ble_active_profile_changed);
+// run pmli_led_output_listener_cb on BLE profile change (on central)
+ZMK_SUBSCRIPTION(pmli_led_output_listener, zmk_ble_active_profile_changed);
 #else
-// // run led_output_listener_cb on peripheral status change event
-ZMK_SUBSCRIPTION(led_output_listener, zmk_split_peripheral_status_changed);
+// // run pmli_led_output_listener_cb on peripheral status change event
+ZMK_SUBSCRIPTION(pmli_led_output_listener, zmk_split_peripheral_status_changed);
 #endif
 
 #endif // IS_ENABLED(CONFIG_ZMK_BLE)
@@ -149,7 +149,7 @@ ZMK_SUBSCRIPTION(led_output_listener, zmk_split_peripheral_status_changed);
 #if IS_ENABLED(CONFIG_ZMK_BATTERY_REPORTING)
 
 #if IS_ENABLED(CONFIG_INDICATOR_LED_SHOW_CRITICAL_BATTERY_CHANGES)
-static int led_battery_listener_cb(const zmk_event_t *eh) {
+static int pmli_led_battery_listener_cb(const zmk_event_t *eh) {
     if (!initialized) {
         return 0;
     }
@@ -167,9 +167,9 @@ static int led_battery_listener_cb(const zmk_event_t *eh) {
     }
     return 0;
 }
-// run led_battery_listener_cb on battery state change event
-ZMK_LISTENER(led_battery_listener, led_battery_listener_cb);
-ZMK_SUBSCRIPTION(led_battery_listener, zmk_battery_state_changed);
+// run pmli_led_battery_listener_cb on battery state change event
+ZMK_LISTENER(pmli_led_battery_listener, pmli_led_battery_listener_cb);
+ZMK_SUBSCRIPTION(pmli_led_battery_listener, zmk_battery_state_changed);
 #endif
 
 #if IS_ENABLED(CONFIG_INDICATOR_LED_SHOW_BATTERY_ON_BOOT)
@@ -214,7 +214,7 @@ static void indicate_startup_battery(void) {
 
 #if IS_ENABLED(CONFIG_INDICATOR_LED_SHOW_LAYER_CHANGE)
 #if IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL) || !IS_ENABLED(CONFIG_ZMK_SPLIT)
-static int led_layer_listener_cb(const zmk_event_t *eh) {
+static int pmli_led_layer_listener_cb(const zmk_event_t *eh) {
     if (!initialized) {
         return 0;
     }
@@ -241,13 +241,13 @@ static int led_layer_listener_cb(const zmk_event_t *eh) {
     return 0;
 }
 
-ZMK_LISTENER(led_layer_listener, led_layer_listener_cb);
-ZMK_SUBSCRIPTION(led_layer_listener, zmk_layer_state_changed);
+ZMK_LISTENER(pmli_led_layer_listener, pmli_led_layer_listener_cb);
+ZMK_SUBSCRIPTION(pmli_led_layer_listener, zmk_layer_state_changed);
 #endif
 #endif // IS_ENABLED(CONFIG_INDICATOR_LED_SHOW_LAYER_CHANGE)
 
 
-extern void led_process_thread(void *d0, void *d1, void *d2) {
+extern void pmli_led_process_thread(void *d0, void *d1, void *d2) {
     ARG_UNUSED(d0);
     ARG_UNUSED(d1);
     ARG_UNUSED(d2);
@@ -264,11 +264,11 @@ extern void led_process_thread(void *d0, void *d1, void *d2) {
     }
 }
 
-// define led_process_thread with stack size 1024, start running it 100 ms after boot
-K_THREAD_DEFINE(led_process_tid, 1024, led_process_thread, NULL, NULL, NULL, K_LOWEST_APPLICATION_THREAD_PRIO,
+// define pmli_led_process_thread with stack size 1024, start running it 100 ms after boot
+K_THREAD_DEFINE(pmli_led_process_tid, 1024, pmli_led_process_thread, NULL, NULL, NULL, K_LOWEST_APPLICATION_THREAD_PRIO,
                 0, 100);
 
-extern void led_init_thread(void *d0, void *d1, void *d2) {
+extern void pmli_led_init_thread(void *d0, void *d1, void *d2) {
     ARG_UNUSED(d0);
     ARG_UNUSED(d1);
     ARG_UNUSED(d2);
@@ -289,5 +289,5 @@ extern void led_init_thread(void *d0, void *d1, void *d2) {
 }
 
 // run init thread on boot for initial battery+output checks
-K_THREAD_DEFINE(led_init_tid, 1024, led_init_thread, NULL, NULL, NULL, K_LOWEST_APPLICATION_THREAD_PRIO,
+K_THREAD_DEFINE(pmli_led_init_tid, 1024, pmli_led_init_thread, NULL, NULL, NULL, K_LOWEST_APPLICATION_THREAD_PRIO,
                 0, 200);
