@@ -1,6 +1,11 @@
 config INDICATOR_LED_WIDGET
     bool "Enable RGB LED widget for showing battery and output status"
 
+menuconfig INDICATOR_LED_WIDGET
+    bool "Poor mans LED status indicator widget"
+    default n
+    select LED
+
 if INDICATOR_LED_WIDGET
 
 config LED

@@ -1,0 +1,9 @@
+# Copyright (c) 2024 The ZMK Contributors
+# SPDX-License-Identifier: MIT
+
+if SHIELD_POOR_MANS_LED
+
+config INDICATOR_LED_WIDGET
+    default y
+
+endif # SHIELD_POOR_MANS_LED
