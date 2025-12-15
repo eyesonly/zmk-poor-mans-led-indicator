@@ -8,6 +8,7 @@ The code changes to this repository include the creation of a boards/shields sub
 
 To build for zmk-rgbled-widget and zmk-poor-mans-led-indicator running together refer to my [personal keyboard repository](https://github.com/eyesonly/urchin-zmk-firmware). Note that the build.yaml looks like this:
 
+```build.yaml
   - board: xiao_ble
     shield: urchin_dongle rgbled_adapter
     snippet: studio-rpc-usb-uart
@@ -18,6 +19,7 @@ To build for zmk-rgbled-widget and zmk-poor-mans-led-indicator running together 
     snippet: studio-rpc-usb-uart
     cmake-args: -DCONFIG_ZMK_STUDIO=y
     artifact-name: urchin_dongle
+```
 
 Note how west.yaml imports the repository. And within boards/shields there is unique nice_nano.conf defined for the board.
 
