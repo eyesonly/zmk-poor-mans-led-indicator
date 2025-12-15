@@ -1,5 +1,31 @@
 # LED indicators using single LED
 
+This fork of the [poor man's LED indicator](https://github.com/BlueDrink9/zmk-poor-mans-led-indicator) allows it to be used together with caksoylar's rgb led widget in the same build without interfering with each other.
+
+It is possible then to build for different boards together - I build for a n!n clone as well as a xiao ble together and the n!n clone uses this poor man's LED indicator to show when I'm persisting in a layer, and the Xiao can use the full fledged rgb led widget.
+
+The code changes to this repository include the creation of a boards/shields subdirectory so that the module is not automatically imported, and within the leds.c all global symbols were prefixed with pmli_ to create a unique namespace for the poor-mans-led-indicator.
+
+To build for zmk-rgbled-widget and zmk-poor-mans-led-indicator running together refer to my [personal keyboard repository](https://github.com/eyesonly/urchin-zmk-firmware). Note that the build.yaml looks like this:
+
+  - board: xiao_ble
+    shield: urchin_dongle rgbled_adapter
+    snippet: studio-rpc-usb-uart
+    cmake-args: -DCONFIG_ZMK_STUDIO=y
+    artifact-name: xiao_dongle
+  - board: nice_nano@2.0.0
+    shield: urchin_dongle poor_mans_led
+    snippet: studio-rpc-usb-uart
+    cmake-args: -DCONFIG_ZMK_STUDIO=y
+    artifact-name: urchin_dongle
+
+Note how west.yaml imports the repository. And within boards/shields there is unique nice_nano.conf defined for the board.
+
+The overlay logic for bringing in the user led setting only for this module is defined in boards/shields in this repository however. Please fork this repository and adjust if the overlay is to be used on a different board.
+
+.......
+
+
 This is a ZMK module containing a simple widget that utilizes a (typically built-in) LED controlled by a single GPIO.
 It is used to indicate battery level, layer, and BLE connection status in a very minimalist way.
 
